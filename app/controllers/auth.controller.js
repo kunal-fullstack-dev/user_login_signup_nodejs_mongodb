@@ -1,19 +1,19 @@
 const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
- 
 
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-
+/*
+Signup API, we need to pass username, email and password in request body
+*/
 exports.signup = (req, res) => {
 	  const user = new User({
 		username: req.body.username,
 		email: req.body.email,
 		password: bcrypt.hashSync(req.body.password, 8)
 	  });
-
 	  user.save((err, user) => {
 		if (err) {
 		  return res.status(500).send({ message: err }); 
@@ -26,11 +26,12 @@ exports.signup = (req, res) => {
           res.send({ message: "User was registered successfully!" ,"token":token });
 		}
         });
-      
-     
   } 
  
-
+/*
+Login API, we need to pass username password in request body
+In Response, you will get x-access-token which you can pass further to insert cookie value
+*/
 exports.signin = (req, res) => {
   User.findOne({
     username: req.body.username
@@ -73,15 +74,13 @@ exports.signin = (req, res) => {
 };
 
 
-
-
-
+/*
+Signout API, we need to pass username x-access-token in header to sign out of the application
+*/
 exports.signout = (req, res) => {
 	
 		try{
 			const authHeader = req.headers["x-access-token"];
-			
-			
 			jwt.sign(authHeader, "", { expiresIn: 1 } , (logout, err) => {
 				if (logout) {
 					return res.status(200).send({msg : 'You have been Logged Out' });
@@ -93,9 +92,7 @@ exports.signout = (req, res) => {
 	  catch (e)
 	  {
 		return res.status(404).send({message:"Error in Logout"});
-	  }
-		  
-		   
+	  }	   
 };
 
  
